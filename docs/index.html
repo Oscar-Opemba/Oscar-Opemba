@@ -6,65 +6,109 @@
 <title>Oscar Opemba — 3D Contribution Skyline</title>
 <meta name="description" content="Interactive 3D visualization of Oscar Opemba's GitHub contribution graph.">
 <style>
-  :root { color-scheme: dark; }
+  :root {
+    color-scheme: dark;
+    --bg: #08090d;
+    --panel: rgba(18, 22, 30, 0.55);
+    --stroke: rgba(255, 255, 255, 0.08);
+    --stroke-hi: rgba(57, 211, 83, 0.55);
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #39d353;
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { height: 100%; overflow: hidden; background: #0d1117; }
+  html, body { height: 100%; overflow: hidden; background: var(--bg); }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: #e6edf3;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
   }
   #app { position: fixed; inset: 0; }
   canvas { display: block; }
 
-  .hud { position: fixed; pointer-events: none; z-index: 10; }
-  #title {
-    top: 20px; left: 24px;
+  /* Ambient depth: a soft green glow behind the scene + a vignette on top */
+  #app::before {
+    content: ""; position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background:
+      radial-gradient(60% 55% at 50% 62%, rgba(35, 134, 54, 0.16), transparent 70%),
+      radial-gradient(100% 100% at 50% 0%, rgba(88, 166, 255, 0.05), transparent 55%);
   }
-  #title h1 { font-size: 18px; font-weight: 600; letter-spacing: .2px; }
-  #title p { font-size: 13px; color: #8b949e; margin-top: 2px; }
-  #title .total { color: #39d353; font-weight: 600; }
+  #app::after {
+    content: ""; position: fixed; inset: 0; z-index: 2; pointer-events: none;
+    background: radial-gradient(130% 130% at 50% 48%, transparent 68%, rgba(0,0,0,0.38) 100%);
+  }
+
+  .hud { position: fixed; pointer-events: none; z-index: 10; }
+  #title { top: 22px; left: 26px; }
+  #title h1 {
+    font-size: 20px; font-weight: 700; letter-spacing: -0.2px;
+    background: linear-gradient(90deg, #e6edf3, #7ee787);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  #title p { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  #title .total {
+    color: var(--accent); font-weight: 700;
+    text-shadow: 0 0 18px rgba(57, 211, 83, 0.55);
+  }
 
   #legend {
-    bottom: 20px; left: 24px;
-    display: flex; align-items: center; gap: 8px;
-    font-size: 12px; color: #8b949e;
-    background: rgba(22,27,34,.7); border: 1px solid #30363d;
-    padding: 8px 12px; border-radius: 8px; backdrop-filter: blur(6px);
+    bottom: 22px; left: 26px;
+    display: flex; align-items: center; gap: 9px;
+    font-size: 12px; color: var(--muted);
+    background: var(--panel); border: 1px solid var(--stroke);
+    padding: 9px 13px; border-radius: 12px;
+    backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.35);
   }
   #legend .cells { display: flex; gap: 3px; }
-  #legend .cell { width: 12px; height: 12px; border-radius: 2px; }
+  #legend .cell { width: 12px; height: 12px; border-radius: 3px; }
 
   #hint {
-    bottom: 20px; right: 24px;
-    font-size: 12px; color: #6e7681; text-align: right; line-height: 1.6;
+    bottom: 24px; right: 26px;
+    font-size: 12px; color: #6e7681; text-align: right; line-height: 1.7;
   }
   #hint kbd {
-    font-family: inherit; background: #21262d; border: 1px solid #30363d;
-    border-radius: 4px; padding: 1px 6px; color: #b1bac4; font-size: 11px;
+    font-family: inherit; background: rgba(255,255,255,0.06); border: 1px solid var(--stroke);
+    border-radius: 5px; padding: 1px 6px; color: #b1bac4; font-size: 11px;
   }
 
-  .btns { position: fixed; top: 18px; right: 20px; z-index: 10; display: flex; gap: 8px; }
+  .btns { position: fixed; top: 20px; right: 22px; z-index: 10; display: flex; gap: 9px; }
   .btns button {
     pointer-events: auto; cursor: pointer;
-    background: rgba(22,27,34,.8); border: 1px solid #30363d; color: #e6edf3;
-    font: inherit; font-size: 13px; padding: 7px 14px; border-radius: 8px;
-    backdrop-filter: blur(6px); transition: border-color .15s, background .15s;
+    background: var(--panel); border: 1px solid var(--stroke); color: var(--text);
+    font: inherit; font-size: 13px; font-weight: 500; padding: 8px 15px; border-radius: 10px;
+    backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+    transition: border-color .18s ease, background .18s ease, transform .18s ease;
   }
-  .btns button:hover { border-color: #39d353; background: rgba(35,134,54,.15); }
+  .btns button:hover {
+    border-color: var(--stroke-hi);
+    background: rgba(35, 134, 54, 0.16);
+    transform: translateY(-1px);
+  }
+  .btns button:active { transform: translateY(0); }
 
   #status {
     position: fixed; inset: 0; z-index: 20; display: flex;
-    align-items: center; justify-content: center; flex-direction: column; gap: 14px;
-    background: #0d1117; text-align: center; padding: 24px;
+    align-items: center; justify-content: center; flex-direction: column; gap: 16px;
+    background: var(--bg); text-align: center; padding: 24px;
+    transition: opacity .5s ease;
   }
   #status .spinner {
-    width: 34px; height: 34px; border: 3px solid #21262d; border-top-color: #39d353;
+    width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.08); border-top-color: var(--accent);
     border-radius: 50%; animation: spin 1s linear infinite;
+    box-shadow: 0 0 24px rgba(57,211,83,0.35);
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  #status p { color: #8b949e; font-size: 14px; }
-  #status a { color: #58a6ff; }
-  .hidden { display: none !important; }
+  #status p { color: var(--muted); font-size: 14px; }
+  #status a { color: #58a6ff; text-decoration: none; }
+  #status a:hover { text-decoration: underline; }
+  .hidden { opacity: 0 !important; pointer-events: none !important; }
+
+  @media (max-width: 640px) {
+    #hint { display: none; }
+    #title h1 { font-size: 17px; }
+  }
 </style>
 </head>
 <body>
@@ -107,6 +151,10 @@
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 const USERNAME = 'Oscar-Opemba';
 const API = `https://github-contributions-api.jogruber.de/v4/${USERNAME}?y=last`;
@@ -141,7 +189,7 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
+renderer.toneMappingExposure = 1.45;
 app.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -154,8 +202,8 @@ controls.autoRotate = true;
 controls.autoRotateSpeed = 0.7;
 
 // ---- Lighting ----
-scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-const key = new THREE.DirectionalLight(0xffffff, 1.1);
+scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+const key = new THREE.DirectionalLight(0xffffff, 1.25);
 key.position.set(30, 60, 25);
 key.castShadow = true;
 key.shadow.mapSize.set(2048, 2048);
@@ -170,13 +218,43 @@ scene.add(rim);
 const world = new THREE.Group();
 scene.add(world);
 
+// ---- Post-processing: subtle bloom so the lit cells actually glow ----
+// Guarded — if the addon pipeline fails to init, we fall back to direct render.
+let composer = null;
+try {
+  composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  const bloom = new UnrealBloomPass(
+    new THREE.Vector2(innerWidth, innerHeight),
+    0.5,   // strength — restrained, only the bright greens bloom
+    0.6,   // radius
+    0.72   // threshold — keep mid bars crisp, bloom only the brightest
+  );
+  composer.addPass(bloom);
+  composer.addPass(new OutputPass());
+} catch (e) {
+  composer = null;
+  console.warn('Bloom unavailable, using direct render:', e);
+}
+function render() {
+  if (composer) composer.render();
+  else renderer.render(scene, camera);
+}
+
+// ---- Intro animation state (bars grow in, staggered left-to-right) ----
+const bars = [];
+let introT0 = null;
+let introMaxWeek = 1;
+const INTRO_MS = 1500;
+const easeOut = t => 1 - Math.pow(1 - t, 3);
+
 // ---- Data + geometry ----
 const CELL = 1.0;      // footprint of each day
 const GAP = 0.12;      // gap between cells
 const STEP = CELL + GAP;
 const MAX_HEIGHT = 13; // tallest bar (heights use a sqrt scale so busy days don't tower)
 // Soft green glow per contribution level (0 = empty) — makes hotter cells read as lit.
-const LEVEL_GLOW = [0, 0.18, 0.30, 0.48, 0.7];
+const LEVEL_GLOW = [0, 0.34, 0.5, 0.68, 0.9];
 
 function buildSkyline(contributions) {
   // Group by ISO week column so layout matches GitHub's calendar
@@ -219,7 +297,9 @@ function buildSkyline(contributions) {
     // busy days don't dwarf everything else — the range reads as a city skyline.
     const h = d.count === 0 ? 0.25 : 0.5 + Math.sqrt(d.count / maxCount) * MAX_HEIGHT;
     const mesh = new THREE.Mesh(baseGeo, matCache[d.level]);
-    mesh.scale.y = h;
+    mesh.scale.y = 0.001;              // starts collapsed; grows in on load
+    mesh.userData.h = h;               // target height for the intro animation
+    mesh.userData.wx = weekIdx;        // for a left-to-right growth stagger
     mesh.position.set(
       weekIdx * STEP - width / 2 + STEP / 2,
       0,
@@ -228,7 +308,11 @@ function buildSkyline(contributions) {
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     world.add(mesh);
+    bars.push(mesh);
   });
+
+  introMaxWeek = maxWeek;
+  introT0 = performance.now();
 
   // Ground plate
   const plate = new THREE.Mesh(
@@ -278,12 +362,28 @@ addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
+  if (composer) composer.setSize(innerWidth, innerHeight);
 });
+
+function stepIntro() {
+  if (introT0 === null) return;
+  const elapsed = performance.now() - introT0;
+  let done = true;
+  for (const m of bars) {
+    // each column starts a little after the one to its left
+    const delay = (m.userData.wx / (introMaxWeek + 1)) * (INTRO_MS * 0.5);
+    const t = Math.min(1, Math.max(0, (elapsed - delay) / (INTRO_MS * 0.6)));
+    m.scale.y = Math.max(0.001, easeOut(t) * m.userData.h);
+    if (t < 1) done = false;
+  }
+  if (done) introT0 = null;
+}
 
 (function animate() {
   requestAnimationFrame(animate);
+  stepIntro();
   controls.update();
-  renderer.render(scene, camera);
+  render();
 })();
 </script>
 </body>
