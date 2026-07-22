@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oscar Opemba — 3D Contribution Skyline</title>
+<meta name="description" content="Interactive 3D visualization of Oscar Opemba's GitHub contribution graph.">
+<style>
+  :root { color-scheme: dark; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; background: #0d1117; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #e6edf3;
+  }
+  #app { position: fixed; inset: 0; }
+  canvas { display: block; }
+
+  .hud { position: fixed; pointer-events: none; z-index: 10; }
+  #title {
+    top: 20px; left: 24px;
+  }
+  #title h1 { font-size: 18px; font-weight: 600; letter-spacing: .2px; }
+  #title p { font-size: 13px; color: #8b949e; margin-top: 2px; }
+  #title .total { color: #39d353; font-weight: 600; }
+
+  #legend {
+    bottom: 20px; left: 24px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: #8b949e;
+    background: rgba(22,27,34,.7); border: 1px solid #30363d;
+    padding: 8px 12px; border-radius: 8px; backdrop-filter: blur(6px);
+  }
+  #legend .cells { display: flex; gap: 3px; }
+  #legend .cell { width: 12px; height: 12px; border-radius: 2px; }
+
+  #hint {
+    bottom: 20px; right: 24px;
+    font-size: 12px; color: #6e7681; text-align: right; line-height: 1.6;
+  }
+  #hint kbd {
+    font-family: inherit; background: #21262d; border: 1px solid #30363d;
+    border-radius: 4px; padding: 1px 6px; color: #b1bac4; font-size: 11px;
+  }
+
+  .btns { position: fixed; top: 18px; right: 20px; z-index: 10; display: flex; gap: 8px; }
+  .btns button {
+    pointer-events: auto; cursor: pointer;
+    background: rgba(22,27,34,.8); border: 1px solid #30363d; color: #e6edf3;
+    font: inherit; font-size: 13px; padding: 7px 14px; border-radius: 8px;
+    backdrop-filter: blur(6px); transition: border-color .15s, background .15s;
+  }
+  .btns button:hover { border-color: #39d353; background: rgba(35,134,54,.15); }
+
+  #status {
+    position: fixed; inset: 0; z-index: 20; display: flex;
+    align-items: center; justify-content: center; flex-direction: column; gap: 14px;
+    background: #0d1117; text-align: center; padding: 24px;
+  }
+  #status .spinner {
+    width: 34px; height: 34px; border: 3px solid #21262d; border-top-color: #39d353;
+    border-radius: 50%; animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #status p { color: #8b949e; font-size: 14px; }
+  #status a { color: #58a6ff; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<div id="title" class="hud">
+  <h1>Oscar Opemba</h1>
+  <p><span class="total" id="total">…</span> contributions in the last year</p>
+</div>
+
+<div class="btns">
+  <button id="toggleRotate">Pause rotation</button>
+  <button id="resetView">Reset view</button>
+</div>
+
+<div id="legend" class="hud">
+  <span>Less</span>
+  <div class="cells" id="legendCells"></div>
+  <span>More</span>
+</div>
+
+<div id="hint" class="hud">
+  <div><kbd>drag</kbd> rotate &nbsp; <kbd>scroll</kbd> zoom &nbsp; <kbd>right-drag</kbd> pan</div>
+</div>
+
+<div id="status">
+  <div class="spinner"></div>
+  <p>Loading contribution data…</p>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const USERNAME = 'Oscar-Opemba';
+const API = `https://github-contributions-api.jogruber.de/v4/${USERNAME}?y=last`;
+
+// GitHub's dark-mode contribution palette (level 0-4)
+const LEVEL_COLORS = ['#161b22', '#0e4429', '#006d32', '#26a641', '#39d353'];
+
+const statusEl = document.getElementById('status');
+const totalEl = document.getElementById('total');
+
+// Build legend swatches
+const legendCells = document.getElementById('legendCells');
+LEVEL_COLORS.forEach(c => {
+  const d = document.createElement('div');
+  d.className = 'cell';
+  d.style.background = c;
+  legendCells.appendChild(d);
+});
+
+// ---- Scene setup ----
+const app = document.getElementById('app');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#0d1117');
+scene.fog = new THREE.Fog('#0d1117', 60, 160);
+
+const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 1000);
+camera.position.set(38, 34, 46);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+app.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 20;
+controls.maxDistance = 130;
+controls.maxPolarAngle = Math.PI / 2.05;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.7;
+
+// ---- Lighting ----
+scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+const key = new THREE.DirectionalLight(0xffffff, 1.1);
+key.position.set(30, 60, 25);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.camera.left = -70; key.shadow.camera.right = 70;
+key.shadow.camera.top = 70; key.shadow.camera.bottom = -70;
+key.shadow.camera.far = 200;
+scene.add(key);
+const rim = new THREE.DirectionalLight(0x39d353, 0.25);
+rim.position.set(-30, 20, -30);
+scene.add(rim);
+
+const world = new THREE.Group();
+scene.add(world);
+
+// ---- Data + geometry ----
+const CELL = 1.0;      // footprint of each day
+const GAP = 0.12;      // gap between cells
+const STEP = CELL + GAP;
+const MAX_HEIGHT = 22; // tallest bar
+
+function buildSkyline(contributions) {
+  // Group by ISO week column so layout matches GitHub's calendar
+  const days = contributions.map(d => ({
+    ...d,
+    dObj: new Date(d.date + 'T00:00:00Z')
+  }));
+
+  // week index relative to the first day's week
+  const first = days[0].dObj;
+  const firstWeekStart = new Date(first);
+  firstWeekStart.setUTCDate(first.getUTCDate() - first.getUTCDay());
+
+  const maxCount = Math.max(1, ...days.map(d => d.count));
+
+  const baseGeo = new THREE.BoxGeometry(CELL, 1, CELL);
+  baseGeo.translate(0, 0.5, 0); // grow upward from y=0
+
+  const matCache = LEVEL_COLORS.map(c => new THREE.MeshStandardMaterial({
+    color: new THREE.Color(c), roughness: 0.55, metalness: 0.05
+  }));
+
+  let maxWeek = 0;
+  days.forEach(d => {
+    const w = Math.round((d.dObj - firstWeekStart) / (7 * 864e5));
+    if (w > maxWeek) maxWeek = w;
+  });
+
+  const width = (maxWeek + 1) * STEP;
+  const depth = 7 * STEP;
+
+  days.forEach(d => {
+    const weekIdx = Math.round((d.dObj - firstWeekStart) / (7 * 864e5));
+    const dayIdx = d.dObj.getUTCDay();
+
+    // A resting floor tile even for empty days, then the height on top
+    const h = d.count === 0 ? 0.25 : 0.25 + (d.count / maxCount) * MAX_HEIGHT;
+    const mesh = new THREE.Mesh(baseGeo, matCache[d.level]);
+    mesh.scale.y = h;
+    mesh.position.set(
+      weekIdx * STEP - width / 2 + STEP / 2,
+      0,
+      dayIdx * STEP - depth / 2 + STEP / 2
+    );
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    world.add(mesh);
+  });
+
+  // Ground plate
+  const plate = new THREE.Mesh(
+    new THREE.BoxGeometry(width + 4, 0.6, depth + 4),
+    new THREE.MeshStandardMaterial({ color: '#161b22', roughness: 0.9 })
+  );
+  plate.position.y = -0.35;
+  plate.receiveShadow = true;
+  world.add(plate);
+
+  controls.target.set(0, 3, 0);
+  controls.update();
+}
+
+// ---- Load data ----
+fetch(API)
+  .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  .then(data => {
+    const contributions = data.contributions || [];
+    if (!contributions.length) throw new Error('No contribution data returned.');
+    const total = (data.total && (data.total.lastYear ?? Object.values(data.total)[0])) ??
+      contributions.reduce((s, d) => s + d.count, 0);
+    totalEl.textContent = total.toLocaleString();
+    buildSkyline(contributions);
+    statusEl.classList.add('hidden');
+  })
+  .catch(err => {
+    statusEl.innerHTML =
+      `<p>Couldn't load contribution data.<br><small style="color:#6e7681">${err.message}</small><br>` +
+      `<a href="https://github.com/${USERNAME}">View GitHub profile →</a></p>`;
+  });
+
+// ---- Controls: buttons ----
+const toggleBtn = document.getElementById('toggleRotate');
+toggleBtn.addEventListener('click', () => {
+  controls.autoRotate = !controls.autoRotate;
+  toggleBtn.textContent = controls.autoRotate ? 'Pause rotation' : 'Resume rotation';
+});
+document.getElementById('resetView').addEventListener('click', () => {
+  camera.position.set(38, 34, 46);
+  controls.target.set(0, 3, 0);
+  controls.update();
+});
+
+// ---- Render loop ----
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+(function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+})();
+</script>
+</body>
+</html>

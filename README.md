@@ -29,7 +29,11 @@ Offensive-security practitioner working across the full attack lifecycle — rec
   </picture>
 </div>
 
-> _Rendered daily by a GitHub Action ([`github-profile-3d-contrib`](https://github.com/yoshi389111/github-profile-3d-contrib)). The image appears after the workflow's first run — see the setup checklist below._
+<p align="center">
+  <a href="https://oscar-opemba.github.io/Oscar-Opemba/"><b>▶ Explore the interactive 3D skyline</b></a> — rotate, zoom, and orbit the real thing.
+</p>
+
+> _The static image above is rendered daily by a GitHub Action ([`github-profile-3d-contrib`](https://github.com/yoshi389111/github-profile-3d-contrib)) and appears after the workflow's first run. The **interactive** version (WebGL / Three.js) lives on GitHub Pages — GitHub READMEs can't run JavaScript, so true 3D is one click away rather than embedded. See the setup checklist below._
 
 ---
 
