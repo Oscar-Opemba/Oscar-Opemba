@@ -140,6 +140,8 @@ renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
 app.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -172,7 +174,9 @@ scene.add(world);
 const CELL = 1.0;      // footprint of each day
 const GAP = 0.12;      // gap between cells
 const STEP = CELL + GAP;
-const MAX_HEIGHT = 22; // tallest bar
+const MAX_HEIGHT = 13; // tallest bar (heights use a sqrt scale so busy days don't tower)
+// Soft green glow per contribution level (0 = empty) — makes hotter cells read as lit.
+const LEVEL_GLOW = [0, 0.18, 0.30, 0.48, 0.7];
 
 function buildSkyline(contributions) {
   // Group by ISO week column so layout matches GitHub's calendar
@@ -191,8 +195,11 @@ function buildSkyline(contributions) {
   const baseGeo = new THREE.BoxGeometry(CELL, 1, CELL);
   baseGeo.translate(0, 0.5, 0); // grow upward from y=0
 
-  const matCache = LEVEL_COLORS.map(c => new THREE.MeshStandardMaterial({
-    color: new THREE.Color(c), roughness: 0.55, metalness: 0.05
+  const matCache = LEVEL_COLORS.map((c, i) => new THREE.MeshStandardMaterial({
+    color: new THREE.Color(c),
+    emissive: new THREE.Color(c),
+    emissiveIntensity: LEVEL_GLOW[i],
+    roughness: 0.45, metalness: 0.1
   }));
 
   let maxWeek = 0;
@@ -208,8 +215,9 @@ function buildSkyline(contributions) {
     const weekIdx = Math.round((d.dObj - firstWeekStart) / (7 * 864e5));
     const dayIdx = d.dObj.getUTCDay();
 
-    // A resting floor tile even for empty days, then the height on top
-    const h = d.count === 0 ? 0.25 : 0.25 + (d.count / maxCount) * MAX_HEIGHT;
+    // A resting floor tile for empty days; otherwise a sqrt scale so a few very
+    // busy days don't dwarf everything else — the range reads as a city skyline.
+    const h = d.count === 0 ? 0.25 : 0.5 + Math.sqrt(d.count / maxCount) * MAX_HEIGHT;
     const mesh = new THREE.Mesh(baseGeo, matCache[d.level]);
     mesh.scale.y = h;
     mesh.position.set(
