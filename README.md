@@ -22,18 +22,25 @@ Offensive-security practitioner working across the full attack lifecycle — rec
 ### Contribution Activity
 
 <div align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./profile-3d-contrib/profile-night-view.svg">
-    <source media="(prefers-color-scheme: light)" srcset="./profile-3d-contrib/profile-green-animate.svg">
-    <img src="./profile-3d-contrib/profile-green-animate.svg" alt="Oscar Opemba — 3D contribution graph" width="100%">
-  </picture>
+  <a href="https://oscar-opemba.github.io/Oscar-Opemba/" title="Open the interactive 3D skyline">
+    <img src="./assets/skyline-preview.gif" alt="Oscar Opemba — 3D contribution skyline (click for the interactive version)" width="100%">
+  </a>
+  <br>
+  <a href="https://oscar-opemba.github.io/Oscar-Opemba/"><b>▶ Explore the interactive 3D skyline</b></a> — rotate, zoom, and orbit the real thing.
 </div>
 
-<p align="center">
-  <a href="https://oscar-opemba.github.io/Oscar-Opemba/"><b>▶ Explore the interactive 3D skyline</b></a> — rotate, zoom, and orbit the real thing.
-</p>
+<details>
+  <summary><sub>Daily-refreshed still (renders after the workflow's first run)</sub></summary>
+  <div align="center">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./profile-3d-contrib/profile-night-view.svg">
+      <source media="(prefers-color-scheme: light)" srcset="./profile-3d-contrib/profile-green.svg">
+      <img src="./profile-3d-contrib/profile-green.svg" alt="Oscar Opemba — 3D contribution graph" width="100%">
+    </picture>
+  </div>
+</details>
 
-> _The static image above is rendered daily by a GitHub Action ([`github-profile-3d-contrib`](https://github.com/yoshi389111/github-profile-3d-contrib)) and appears after the workflow's first run. The **interactive** version (WebGL / Three.js) lives on GitHub Pages — GitHub READMEs can't run JavaScript, so true 3D is one click away rather than embedded. See the setup checklist below._
+> _The preview above is a recording of the live WebGL / Three.js scene ([source](./docs/index.html)), which pulls contribution data in real time. GitHub READMEs can't run JavaScript, so true interactive 3D lives on GitHub Pages and is one click away. The collapsible still is regenerated daily by a GitHub Action ([`github-profile-3d-contrib`](https://github.com/yoshi389111/github-profile-3d-contrib)). See the setup checklist below._
 
 ---
 
