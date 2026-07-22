@@ -1,0 +1,39 @@
+name: GitHub Profile 3D Contribution
+
+on:
+  # Rebuild once a day at 06:00 UTC
+  schedule:
+    - cron: "0 6 * * *"
+  # Allow manual runs from the Actions tab (use this for the first render)
+  workflow_dispatch:
+
+# Required so the action can commit the generated SVGs back to the repo.
+# NOTE: the repo must also have Settings -> Actions -> General ->
+# Workflow permissions set to "Read and write permissions".
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate 3D contribution graph
+        uses: yoshi389111/github-profile-3d-contrib@0.7.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ github.repository_owner }}
+
+      - name: Commit & push generated images
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ./profile-3d-contrib
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: update 3D contribution graph [skip ci]"
+            git push
+          fi
