@@ -1,0 +1,151 @@
+name: Repository Maintenance
+
+# Audits the repository (README references, GitHub Pages entry point, workflow
+# hygiene, committed-credential signatures, external link health) and records
+# the result in .github/repository-activity.json.
+#
+# It commits ONLY when that audit result actually changes, plus a heartbeat
+# refresh at most once every 30 days. A scheduled run over an unchanged
+# repository writes nothing and creates no commit.
+#
+# To disable: Actions tab -> "Repository Maintenance" -> ... -> Disable workflow.
+
+on:
+  # Weekly. Deliberately conservative: this is maintenance, not activity farming.
+  schedule:
+    - cron: "17 5 * * 1" # Mondays, 05:17 UTC
+  # Manual runs from the Actions tab.
+  workflow_dispatch:
+    inputs:
+      check_links:
+        description: "Verify external README links over the network"
+        type: boolean
+        default: true
+      force_refresh:
+        description: "Rewrite the health file even if nothing changed"
+        type: boolean
+        default: false
+  # Keep the audit accurate when the audited content itself changes. Pushes made
+  # by this workflow use GITHUB_TOKEN, which cannot re-trigger workflows, so this
+  # cannot loop.
+  push:
+    branches: [main]
+    paths:
+      - "README.md"
+      - "docs/**"
+      - "scripts/repository_maintenance.py"
+      - ".github/workflows/**"
+
+# Least privilege by default; the one job that pushes elevates for itself.
+permissions:
+  contents: read
+
+# Never let two maintenance runs push concurrently. Queue instead of cancelling
+# so a run triggered mid-flight is not silently dropped.
+concurrency:
+  group: repository-maintenance
+  cancel-in-progress: false
+
+jobs:
+  maintain:
+    name: Audit and record
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # required only to commit the health file
+
+    steps:
+      - name: Checkout
+        # actions/checkout v4.2.2, pinned to its commit SHA
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Show runner Python
+        run: python3 --version
+
+      - name: Validate workflow YAML
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, sys
+          try:
+              import yaml
+          except ImportError:
+              print("PyYAML unavailable on this runner; skipping strict YAML validation.")
+              sys.exit(0)
+          failed = False
+          for path in sorted(pathlib.Path(".github/workflows").glob("*.y*ml")):
+              try:
+                  yaml.safe_load(path.read_text(encoding="utf-8"))
+                  print(f"ok   {path}")
+              except yaml.YAMLError as exc:
+                  failed = True
+                  print(f"FAIL {path}: {exc}")
+          sys.exit(1 if failed else 0)
+          PY
+
+      - name: Run repository maintenance
+        id: maintenance
+        # Inputs are passed through the environment rather than interpolated into
+        # the shell, so no workflow input can ever reach the command line.
+        env:
+          CHECK_LINKS: ${{ github.event_name != 'push' && (github.event.inputs.check_links != 'false') }}
+          FORCE_REFRESH: ${{ github.event.inputs.force_refresh == 'true' }}
+        run: |
+          set -euo pipefail
+          args=(--repo-root "$GITHUB_WORKSPACE" --heartbeat-days 30)
+          if [ "$CHECK_LINKS" = "true" ]; then args+=(--check-links); fi
+          if [ "$FORCE_REFRESH" = "true" ]; then args+=(--force); fi
+          printf 'Running: python3 scripts/repository_maintenance.py %s\n' "${args[*]}"
+          python3 scripts/repository_maintenance.py "${args[@]}"
+
+      - name: Inspect working tree
+        run: |
+          set -euo pipefail
+          git status --short
+          git diff -- .github/repository-activity.json
+
+      - name: Commit and push
+        if: steps.maintenance.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if [ ! -f .github/repository-activity.json ]; then
+            echo "::error::Maintenance reported a change but the health file is missing."
+            exit 1
+          fi
+
+          git add -- .github/repository-activity.json
+          if git diff --cached --quiet; then
+            echo "Nothing staged after all; refusing to create an empty commit."
+            exit 0
+          fi
+          git diff --cached --stat
+
+          git commit -m "chore: automated repository maintenance"
+
+          # Another workflow (profile-3d-contrib) may push between our fetch and
+          # our push. Rebase and retry rather than forcing.
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              echo "Pushed on attempt ${attempt}."
+              exit 0
+            fi
+            echo "Push rejected (attempt ${attempt}); rebasing onto the remote tip."
+            git fetch origin "${GITHUB_REF_NAME}"
+            if ! git rebase "origin/${GITHUB_REF_NAME}"; then
+              git rebase --abort || true
+              echo "::error::Rebase conflict on the maintenance file; aborting without pushing."
+              exit 1
+            fi
+          done
+          echo "::error::Could not push after 3 attempts."
+          exit 1
+
+      - name: Report no-op
+        if: steps.maintenance.outputs.changed != 'true'
+        run: echo "No maintenance commit needed (${{ steps.maintenance.outputs.reason }})."

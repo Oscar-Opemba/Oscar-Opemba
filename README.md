@@ -40,7 +40,7 @@ Offensive-security practitioner working across the full attack lifecycle — rec
   </div>
 </details>
 
-> _The preview above is a recording of the live WebGL / Three.js scene ([source](./docs/index.html)), which pulls contribution data in real time. GitHub READMEs can't run JavaScript, so true interactive 3D lives on GitHub Pages and is one click away. The collapsible still is regenerated daily by a GitHub Action ([`github-profile-3d-contrib`](https://github.com/yoshi389111/github-profile-3d-contrib)). See the setup checklist below._
+> _The preview above is a recording of the live WebGL / Three.js scene ([source](./docs/index.html)), which pulls contribution data in real time. GitHub READMEs can't run JavaScript, so true interactive 3D lives on GitHub Pages and is one click away. The collapsible still is regenerated daily by a GitHub Action ([`github-profile-3d-contrib`](https://github.com/yoshi389111/github-profile-3d-contrib)). See [Repository automation](#repository-automation) for how this repo maintains itself._
 
 ---
 
@@ -106,6 +106,39 @@ Offensive-security practitioner working across the full attack lifecycle — rec
   <img height="165" src="https://github-readme-stats.vercel.app/api?username=Oscar-Opemba&show_icons=true&count_private=true&hide_border=true&theme=tokyonight" alt="GitHub stats">
   <img height="165" src="https://github-readme-stats.vercel.app/api/top-langs/?username=Oscar-Opemba&layout=compact&hide_border=true&theme=tokyonight&langs_count=8" alt="Top languages">
 </div>
+
+---
+
+### Repository automation
+
+This repo audits itself. A weekly GitHub Action checks that the README's links and images
+still resolve, that the Pages entry point is intact, that every workflow declares explicit
+least-privilege permissions and pins its actions, and that no credential material has been
+committed — then records the result in
+[`.github/repository-activity.json`](./.github/repository-activity.json).
+
+<details>
+  <summary><sub>How it behaves, and what it refuses to do</sub></summary>
+
+<br>
+
+It commits **only when the audit result actually changes** (plus a 30-day heartbeat).
+A scheduled run over an unchanged repository writes nothing and creates no commit — the
+result is hashed into a content digest, and transient noise like a badge host returning
+503 is explicitly excluded from that digest.
+
+It does **not** fabricate or backdate commits, manipulate author dates, invent contributors,
+create empty commits, or generate bulk activity to inflate a contribution graph. Its commits
+are authored by `github-actions[bot]`, which GitHub does **not** attribute to a human
+contribution graph — so it produces no green squares, by design.
+
+**Run it yourself:** `python3 scripts/repository_maintenance.py --dry-run --check-links`
+(no dependencies — standard library only).
+
+Full documentation — schedule, manual triggers, permissions, how to change the interval,
+and how to disable it — is in **[docs/AUTOMATION.md](./docs/AUTOMATION.md)**.
+
+</details>
 
 ---
 

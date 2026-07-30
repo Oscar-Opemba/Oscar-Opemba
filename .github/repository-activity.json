@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "workflow": "repository-maintenance",
+  "status": "healthy-with-warnings",
+  "last_maintenance_run": "2026-07-30T15:09:31Z",
+  "last_content_change": "2026-07-30T15:09:31Z",
+  "content_digest": "sha256:200d5fbdcb2537b75299e34d673e21137862d92b269f636d82bec584d306bd30",
+  "yaml_parser": "pyyaml",
+  "summary": {
+    "passed": 6,
+    "warnings": 3,
+    "failures": 0
+  },
+  "repository": {
+    "default_branch": "main",
+    "tracked_files": 9,
+    "readme": {
+      "present": true,
+      "bytes": 8865,
+      "internal_references": 6,
+      "external_links": 38
+    },
+    "pages": {
+      "entry": "docs/index.html",
+      "present": true,
+      "bytes": 13608,
+      "title": "Oscar Opemba — 3D Contribution Skyline"
+    },
+    "workflows": [
+      {
+        "path": ".github/workflows/profile-3d-contrib.yml",
+        "name": "GitHub Profile 3D Contribution",
+        "yaml_valid": true,
+        "triggers": [
+          "schedule",
+          "workflow_dispatch"
+        ],
+        "schedules": [
+          "0 6 * * *"
+        ],
+        "declares_permissions": true,
+        "has_concurrency_guard": false,
+        "external_actions": [
+          {
+            "uses": "actions/checkout@v4",
+            "first_party": true,
+            "pinned_to_sha": false,
+            "pinned_to_version": true
+          },
+          {
+            "uses": "yoshi389111/github-profile-3d-contrib@0.7.1",
+            "first_party": false,
+            "pinned_to_sha": false,
+            "pinned_to_version": true
+          }
+        ]
+      },
+      {
+        "path": ".github/workflows/repository-maintenance.yml",
+        "name": "Repository Maintenance",
+        "yaml_valid": true,
+        "triggers": [
+          "push",
+          "schedule",
+          "workflow_dispatch"
+        ],
+        "schedules": [
+          "17 5 * * 1"
+        ],
+        "declares_permissions": true,
+        "has_concurrency_guard": true,
+        "external_actions": [
+          {
+            "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+            "first_party": true,
+            "pinned_to_sha": true,
+            "pinned_to_version": true
+          }
+        ]
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "readme_present",
+      "status": "pass",
+      "detail": "README.md is present"
+    },
+    {
+      "id": "readme_internal_references_resolve",
+      "status": "warn",
+      "detail": "Awaiting generated output (created by another workflow): profile-3d-contrib/profile-green.svg, profile-3d-contrib/profile-night-view.svg"
+    },
+    {
+      "id": "pages_entry_present",
+      "status": "pass",
+      "detail": "docs/index.html present with a <title>"
+    },
+    {
+      "id": "workflow_yaml_valid",
+      "status": "pass",
+      "detail": "2 workflow file(s) parsed as valid YAML"
+    },
+    {
+      "id": "workflows_declare_permissions",
+      "status": "pass",
+      "detail": "Every workflow declares an explicit permissions block"
+    },
+    {
+      "id": "third_party_actions_pinned",
+      "status": "warn",
+      "detail": "Third-party action pinned to a mutable tag rather than a commit SHA: .github/workflows/profile-3d-contrib.yml: yoshi389111/github-profile-3d-contrib@0.7.1"
+    },
+    {
+      "id": "scheduled_workflows_have_concurrency_guard",
+      "status": "warn",
+      "detail": "Scheduled workflow without a concurrency guard (overlapping runs can race on push): .github/workflows/profile-3d-contrib.yml"
+    },
+    {
+      "id": "no_embedded_credentials",
+      "status": "pass",
+      "detail": "No credential signatures across 9 tracked file(s)"
+    },
+    {
+      "id": "external_links_reachable",
+      "status": "pass",
+      "detail": "36/38 links verified; 2 inconclusive (treated as healthy)"
+    }
+  ],
+  "link_check": {
+    "performed": true,
+    "checked": 38,
+    "ok": 36,
+    "broken": [],
+    "unverified": [
+      "https://github-readme-stats.vercel.app/api/top-langs/?username=Oscar-Opemba&layout=compact&hide_border=true&theme=tokyonight&langs_count=8",
+      "https://github-readme-stats.vercel.app/api?username=Oscar-Opemba&show_icons=true&count_private=true&hide_border=true&theme=tokyonight"
+    ],
+    "details": {
+      "https://github-readme-stats.vercel.app/api/top-langs/?username=Oscar-Opemba&layout=compact&hide_border=true&theme=tokyonight&langs_count=8": "HTTP 503",
+      "https://github-readme-stats.vercel.app/api?username=Oscar-Opemba&show_icons=true&count_private=true&hide_border=true&theme=tokyonight": "HTTP 503"
+    },
+    "last_checked": "2026-07-30T15:09:31Z"
+  }
+}
