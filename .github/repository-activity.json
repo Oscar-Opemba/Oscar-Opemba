@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
   "workflow": "repository-maintenance",
-  "status": "healthy-with-warnings",
-  "last_maintenance_run": "2026-07-30T15:15:50Z",
-  "last_content_change": "2026-07-30T15:15:50Z",
-  "content_digest": "sha256:57e54ced445cb1935b36acf52c07562c0c73f5946818075939b9f85af9ae41ff",
+  "status": "healthy",
+  "last_maintenance_run": "2026-07-30T15:21:24Z",
+  "last_content_change": "2026-07-30T15:21:24Z",
+  "content_digest": "sha256:796cef92500566b96ce25de9086b4813231500e719475aa9b604c0f9358a4f1c",
   "yaml_parser": "pyyaml",
   "summary": {
-    "passed": 7,
-    "warnings": 2,
+    "passed": 9,
+    "warnings": 0,
     "failures": 0
   },
   "repository": {
@@ -39,19 +39,19 @@
           "0 6 * * *"
         ],
         "declares_permissions": true,
-        "has_concurrency_guard": false,
+        "has_concurrency_guard": true,
         "external_actions": [
           {
-            "uses": "actions/checkout@v4",
+            "uses": "actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8",
             "first_party": true,
-            "pinned_to_sha": false,
+            "pinned_to_sha": true,
             "pinned_to_version": true
           },
           {
-            "uses": "yoshi389111/github-profile-3d-contrib@0.7.1",
+            "uses": "yoshi389111/github-profile-3d-contrib@fd54cf20784ed9a86dc7be48bb5eb1f74e92b4f8",
             "first_party": false,
-            "pinned_to_sha": false,
-            "pinned_to_version": true
+            "pinned_to_sha": true,
+            "pinned_to_version": false
           }
         ]
       },
@@ -71,7 +71,7 @@
         "has_concurrency_guard": true,
         "external_actions": [
           {
-            "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+            "uses": "actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8",
             "first_party": true,
             "pinned_to_sha": true,
             "pinned_to_version": true
@@ -108,13 +108,13 @@
     },
     {
       "id": "third_party_actions_pinned",
-      "status": "warn",
-      "detail": "Third-party action pinned to a mutable tag rather than a commit SHA: .github/workflows/profile-3d-contrib.yml: yoshi389111/github-profile-3d-contrib@0.7.1"
+      "status": "pass",
+      "detail": "All third-party actions are pinned to a commit SHA"
     },
     {
       "id": "scheduled_workflows_have_concurrency_guard",
-      "status": "warn",
-      "detail": "Scheduled workflow without a concurrency guard (overlapping runs can race on push): .github/workflows/profile-3d-contrib.yml"
+      "status": "pass",
+      "detail": "Scheduled workflows declare a concurrency guard"
     },
     {
       "id": "no_embedded_credentials",
@@ -124,7 +124,7 @@
     {
       "id": "external_links_reachable",
       "status": "pass",
-      "detail": "36/38 links reachable (not re-checked this run; verdict from 2026-07-30T15:09:31Z)"
+      "detail": "36/38 links verified; 2 inconclusive (treated as healthy)"
     }
   ],
   "link_check": {
@@ -140,7 +140,6 @@
       "https://github-readme-stats.vercel.app/api/top-langs/?username=Oscar-Opemba&layout=compact&hide_border=true&theme=tokyonight&langs_count=8": "HTTP 503",
       "https://github-readme-stats.vercel.app/api?username=Oscar-Opemba&show_icons=true&count_private=true&hide_border=true&theme=tokyonight": "HTTP 503"
     },
-    "last_checked": "2026-07-30T15:09:31Z",
-    "stale": true
+    "last_checked": "2026-07-30T15:21:24Z"
   }
 }
