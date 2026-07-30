@@ -2,18 +2,18 @@
   "schema_version": 1,
   "workflow": "repository-maintenance",
   "status": "healthy-with-warnings",
-  "last_maintenance_run": "2026-07-30T15:09:31Z",
-  "last_content_change": "2026-07-30T15:09:31Z",
-  "content_digest": "sha256:200d5fbdcb2537b75299e34d673e21137862d92b269f636d82bec584d306bd30",
+  "last_maintenance_run": "2026-07-30T15:15:50Z",
+  "last_content_change": "2026-07-30T15:15:50Z",
+  "content_digest": "sha256:57e54ced445cb1935b36acf52c07562c0c73f5946818075939b9f85af9ae41ff",
   "yaml_parser": "pyyaml",
   "summary": {
-    "passed": 6,
-    "warnings": 3,
+    "passed": 7,
+    "warnings": 2,
     "failures": 0
   },
   "repository": {
     "default_branch": "main",
-    "tracked_files": 9,
+    "tracked_files": 19,
     "readme": {
       "present": true,
       "bytes": 8865,
@@ -88,8 +88,8 @@
     },
     {
       "id": "readme_internal_references_resolve",
-      "status": "warn",
-      "detail": "Awaiting generated output (created by another workflow): profile-3d-contrib/profile-green.svg, profile-3d-contrib/profile-night-view.svg"
+      "status": "pass",
+      "detail": "All 6 internal references resolve"
     },
     {
       "id": "pages_entry_present",
@@ -119,12 +119,12 @@
     {
       "id": "no_embedded_credentials",
       "status": "pass",
-      "detail": "No credential signatures across 9 tracked file(s)"
+      "detail": "No credential signatures across 19 tracked file(s)"
     },
     {
       "id": "external_links_reachable",
       "status": "pass",
-      "detail": "36/38 links verified; 2 inconclusive (treated as healthy)"
+      "detail": "36/38 links reachable (not re-checked this run; verdict from 2026-07-30T15:09:31Z)"
     }
   ],
   "link_check": {
@@ -140,6 +140,7 @@
       "https://github-readme-stats.vercel.app/api/top-langs/?username=Oscar-Opemba&layout=compact&hide_border=true&theme=tokyonight&langs_count=8": "HTTP 503",
       "https://github-readme-stats.vercel.app/api?username=Oscar-Opemba&show_icons=true&count_private=true&hide_border=true&theme=tokyonight": "HTTP 503"
     },
-    "last_checked": "2026-07-30T15:09:31Z"
+    "last_checked": "2026-07-30T15:09:31Z",
+    "stale": true
   }
 }
