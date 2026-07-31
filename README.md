@@ -1,3 +1,7 @@
+[![Repository Maintenance](https://github.com/Oscar-Opemba/Oscar-Opemba/actions/workflows/repository-maintenance.yml/badge.svg)](https://github.com/Oscar-Opemba/Oscar-Opemba/actions/workflows/repository-maintenance.yml)
+![Top language](https://img.shields.io/github/languages/top/Oscar-Opemba/Oscar-Opemba)
+![Last commit](https://img.shields.io/github/last-commit/Oscar-Opemba/Oscar-Opemba)
+
 <h1 align="center">Oscar Opemba</h1>
 
 <p align="center">
