@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
   "workflow": "repository-maintenance",
-  "status": "healthy",
-  "last_maintenance_run": "2026-07-31T07:22:50Z",
-  "last_content_change": "2026-07-31T07:22:50Z",
-  "content_digest": "sha256:76344ce18ed7eb54e10bef474d20f502797bb0ae8617c6142ab489d3cf83b257",
+  "status": "attention",
+  "last_maintenance_run": "2026-08-03T08:44:06Z",
+  "last_content_change": "2026-08-03T08:44:06Z",
+  "content_digest": "sha256:9e335e346e1a2af6964c6de712ae63264892b1efa2800ceb052e8cfd7d116c2e",
   "yaml_parser": "pyyaml",
   "summary": {
-    "passed": 9,
+    "passed": 8,
     "warnings": 0,
-    "failures": 0
+    "failures": 1
   },
   "repository": {
     "default_branch": "main",
@@ -123,24 +123,32 @@
     },
     {
       "id": "external_links_reachable",
-      "status": "pass",
-      "detail": "36/38 links reachable (not re-checked this run; verdict from 2026-07-30T15:21:24Z)"
+      "status": "fail",
+      "detail": "Unreachable README links: https://github.com/Oscar-Opemba/bugbounty-arsenal, https://github.com/Oscar-Opemba/cybersecurity-resources, https://github.com/Oscar-Opemba/trackml-mlops-pipeline, https://github.com/Oscar-Opemba/vivasec"
     }
   ],
   "link_check": {
     "performed": true,
-    "checked": 38,
-    "ok": 36,
-    "broken": [],
+    "checked": 41,
+    "ok": 35,
+    "broken": [
+      "https://github.com/Oscar-Opemba/bugbounty-arsenal",
+      "https://github.com/Oscar-Opemba/cybersecurity-resources",
+      "https://github.com/Oscar-Opemba/trackml-mlops-pipeline",
+      "https://github.com/Oscar-Opemba/vivasec"
+    ],
     "unverified": [
       "https://github-readme-stats.vercel.app/api/top-langs/?username=Oscar-Opemba&layout=compact&hide_border=true&theme=tokyonight&langs_count=8",
       "https://github-readme-stats.vercel.app/api?username=Oscar-Opemba&show_icons=true&count_private=true&hide_border=true&theme=tokyonight"
     ],
     "details": {
       "https://github-readme-stats.vercel.app/api/top-langs/?username=Oscar-Opemba&layout=compact&hide_border=true&theme=tokyonight&langs_count=8": "HTTP 503",
-      "https://github-readme-stats.vercel.app/api?username=Oscar-Opemba&show_icons=true&count_private=true&hide_border=true&theme=tokyonight": "HTTP 503"
+      "https://github-readme-stats.vercel.app/api?username=Oscar-Opemba&show_icons=true&count_private=true&hide_border=true&theme=tokyonight": "HTTP 503",
+      "https://github.com/Oscar-Opemba/bugbounty-arsenal": "HTTP 404",
+      "https://github.com/Oscar-Opemba/cybersecurity-resources": "HTTP 404",
+      "https://github.com/Oscar-Opemba/trackml-mlops-pipeline": "HTTP 404",
+      "https://github.com/Oscar-Opemba/vivasec": "HTTP 404"
     },
-    "last_checked": "2026-07-30T15:21:24Z",
-    "stale": true
+    "last_checked": "2026-08-03T08:44:06Z"
   }
 }
