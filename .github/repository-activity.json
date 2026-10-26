@@ -2,7 +2,7 @@
   "schema_version": 1,
   "workflow": "repository-maintenance",
   "status": "attention",
-  "last_maintenance_run": "2026-09-21T10:46:09Z",
+  "last_maintenance_run": "2026-10-26T11:09:32Z",
   "last_content_change": "2026-08-17T05:51:56Z",
   "content_digest": "sha256:11c1886956a6417bb6caf47a4f78264f56706285f70ee57ab30785b61b2d5dbe",
   "yaml_parser": "pyyaml",
@@ -130,7 +130,7 @@
   "link_check": {
     "performed": true,
     "checked": 41,
-    "ok": 33,
+    "ok": 36,
     "broken": [
       "https://github.com/Oscar-Opemba/C2-Evasion-Toolkit",
       "https://github.com/Oscar-Opemba/bugbounty-arsenal",
@@ -138,21 +138,14 @@
       "https://github.com/Oscar-Opemba/trackml-mlops-pipeline",
       "https://github.com/Oscar-Opemba/vivasec"
     ],
-    "unverified": [
-      "https://github-readme-stats.vercel.app/api/top-langs/?username=Oscar-Opemba&layout=compact&hide_border=true&theme=tokyonight&langs_count=8",
-      "https://github-readme-stats.vercel.app/api?username=Oscar-Opemba&show_icons=true&count_private=true&hide_border=true&theme=tokyonight",
-      "https://www.instagram.com/0xghostx/"
-    ],
+    "unverified": [],
     "details": {
-      "https://github-readme-stats.vercel.app/api/top-langs/?username=Oscar-Opemba&layout=compact&hide_border=true&theme=tokyonight&langs_count=8": "HTTP 503",
-      "https://github-readme-stats.vercel.app/api?username=Oscar-Opemba&show_icons=true&count_private=true&hide_border=true&theme=tokyonight": "HTTP 503",
       "https://github.com/Oscar-Opemba/C2-Evasion-Toolkit": "HTTP 404",
       "https://github.com/Oscar-Opemba/bugbounty-arsenal": "HTTP 404",
       "https://github.com/Oscar-Opemba/cybersecurity-resources": "HTTP 404",
       "https://github.com/Oscar-Opemba/trackml-mlops-pipeline": "HTTP 404",
-      "https://github.com/Oscar-Opemba/vivasec": "HTTP 404",
-      "https://www.instagram.com/0xghostx/": "HTTP 429"
+      "https://github.com/Oscar-Opemba/vivasec": "HTTP 404"
     },
-    "last_checked": "2026-09-21T10:46:09Z"
+    "last_checked": "2026-10-26T11:09:32Z"
   }
 }
